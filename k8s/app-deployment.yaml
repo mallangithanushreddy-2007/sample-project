@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: taskflow-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: taskflow-app
+  template:
+    metadata:
+      labels:
+        app: taskflow-app
+    spec:
+      containers:
+        - name: taskflow-app
+          # This image tag will be updated dynamically by GitHub Actions
+          image: ghcr.io/mallangithanushreddy-2007/task-manager:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: NODE_ENV
+              value: "production"
+            - name: POSTGRES_URL
+              value: "postgres://postgres:postgres_password@postgres-service:5432/taskflow_db"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: taskflow-service
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80
+      targetPort: 3000
+  selector:
+    app: taskflow-app
